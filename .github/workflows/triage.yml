@@ -1,0 +1,41 @@
+name: Support triage
+on:
+  schedule:
+    - cron: "*/15 * * * *"    # every 15 minutes
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Classify only, change nothing"
+        type: boolean
+        default: false
+
+concurrency:
+  group: triage          # never two runs at once, so an email is never handled twice
+  cancel-in-progress: false
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Triage new support emails
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          SUPPORT_ADDRESS: ${{ secrets.SUPPORT_ADDRESS }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL }}
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_TICKETS_DB: ${{ secrets.NOTION_TICKETS_DB }}
+          NOTION_TEMPLATES_DB: ${{ secrets.NOTION_TEMPLATES_DB }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SHOP_NAME: ${{ vars.SHOP_NAME }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then python triage.py --dry-run; else python triage.py; fi

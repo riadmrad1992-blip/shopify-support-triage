@@ -1,0 +1,14 @@
+[
+  {"category": "Shipping", "scenario": "Where is my order",
+   "script": "Hi [NAME],\n\nThanks for checking in! Your order [ORDER] is [FULFILLMENT STATUS]. Here's what to expect next: [NEXT STEP]. I'll keep an eye on it and let you know if anything changes.\n\nBest,\n[SHOP] Support"},
+  {"category": "Shipping", "scenario": "Package arrived damaged",
+   "script": "Hi [NAME],\n\nI'm sorry your order arrived damaged. Could you reply with a photo of the item and the box? As soon as I have it, I'll arrange the best fix for you.\n\nBest,\n[SHOP] Support"},
+  {"category": "Refunds", "scenario": "Refund request",
+   "script": "Hi [NAME],\n\nThanks for letting me know about order [ORDER]. I'm reviewing your refund request now and will confirm the next steps within one business day.\n\nBest,\n[SHOP] Support"},
+  {"category": "Disputes", "scenario": "Upset customer or chargeback",
+   "script": "Hi [NAME],\n\nI'm sorry this has been frustrating, and I want to make it right. I've flagged order [ORDER] for our team lead, who will reach out personally today.\n\nBest,\n[SHOP] Support"},
+  {"category": "Product", "scenario": "Product question",
+   "script": "Hi [NAME],\n\nGreat question! [ANSWER]. If you'd like, I can help you pick the best option for what you need.\n\nBest,\n[SHOP] Support"},
+  {"category": "Payment", "scenario": "Change or cancel an order",
+   "script": "Hi [NAME],\n\nHappy to help with order [ORDER]. If it hasn't shipped yet, I can update it for you. Could you confirm exactly what you'd like changed?\n\nBest,\n[SHOP] Support"}
+]
