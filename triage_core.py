@@ -106,7 +106,7 @@ def parse_ai_json(text):
 
 
 KEYWORDS = [
-    ("Dispute", ["chargeback", "dispute", "scam", "fraud", "lawyer", "report you", "bank"]),
+    ("Dispute", ["chargeback", "charge back", "dispute", "scam", "fraud", "lawyer", "report you"]),
     ("Refund", ["refund", "money back", "return", "reimburse"]),
     ("Shipping", ["where is my", "tracking", "shipped", "delivery", "arrived", "late", "lost", "package"]),
     ("Order change", ["cancel", "change my order", "address", "wrong size", "update my order"]),
@@ -131,15 +131,23 @@ def keyword_triage(subject, body):
 
 # ---------- decisions ----------
 
+def apply_hard_rules(triage, subject, body):
+    """Deterministic overrides on top of the AI: a chargeback or fraud threat is always a
+    high-urgency Dispute, whatever the model said."""
+    text = f"{subject}\n{body}".lower()
+    if any(w in text for w in KEYWORDS[0][1]):
+        triage["category"], triage["urgency"] = "Dispute", "High"
+    return triage
+
+
 def escalation_reasons(triage, order):
-    """Why a human should look now (empty list = no escalation)."""
+    """Why a human should look now (empty list = no escalation).
+    Urgency alone doesn't ping Slack; it sorts the queue in Notion."""
     reasons = []
     if triage["category"] == "Dispute":
         reasons.append("dispute")
     if triage["sentiment"] == "Angry":
         reasons.append("angry customer")
-    if triage["urgency"] == "High" and triage["category"] != "Dispute":
-        reasons.append("high urgency")
     if order and order.get("total", 0) >= HIGH_VALUE_ORDER:
         reasons.append(f"high-value order (${order['total']:,.0f})")
     return reasons

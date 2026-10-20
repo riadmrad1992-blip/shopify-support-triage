@@ -34,7 +34,7 @@ flowchart LR
 | Category | Refund · Shipping · Dispute · Product question · Order change · Other |
 | Urgency | High · Normal · Low |
 | Sentiment | Angry · Frustrated · Neutral · Happy |
-| Escalates to Slack when | Dispute, angry customer, high urgency, or order total ≥ $200 |
+| Escalates to Slack when | Dispute, angry customer, or order total ≥ $200 (urgency sorts the Notion queue) |
 
 The draft uses real order facts (items, payment and fulfillment status) and follows the store's own reply templates for tone and structure.
 
@@ -42,6 +42,7 @@ The draft uses real order facts (items, payment and fulfillment status) and foll
 
 - **Human in the loop.** Drafts only; nothing is sent automatically.
 - **Prompt-injection aware.** Customer emails are passed to the model as data, and the system prompt tells it never to follow instructions found inside them. Output is parsed as strict JSON and validated against fixed category lists.
+- **Hard rules over the AI.** Any chargeback or fraud threat is forced to a high-urgency Dispute in code, whatever the model says, so the most expensive emails can never slip through as "Shipping".
 - **No promises the data can't back.** The model is told not to promise refunds or discounts; those decisions stay with a person.
 - **Fails safe.** If the AI call fails, keyword rules classify the email and a neutral holding reply is drafted, so no customer is left without a response. One bad email never blocks the rest, and failures alert Slack.
 - **Processed once.** Each email gets a Gmail `Triaged` label, and runs never overlap.

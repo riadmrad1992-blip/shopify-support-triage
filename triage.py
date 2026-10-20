@@ -161,7 +161,22 @@ Rules:
   decision (refund approval, dispute), say you're looking into it and will follow up.
 - Use the reply templates as the style and structure guide. Fill placeholders with real order facts;
   if a fact is unknown, keep the reply natural without it instead of leaving brackets.
-- Sign off as the shop's support team.
+- Sign off as "The <shop_name> Team", or "The Support Team" if shop_name is empty.
+
+Categories:
+- Dispute: threatens a chargeback, bank dispute, legal action, or calls the shop a scam.
+- Refund: wants money back or to return an item.
+- Shipping: where is my order, tracking, late or lost delivery.
+- Order change: change address, items or size, or cancel before shipping.
+- Product question: pre-purchase questions about a product.
+- Other: anything else.
+
+Urgency (be strict; most emails are Normal):
+- High: a dispute or chargeback threat, a legal or safety issue, or an explicit same-day deadline with a consequence.
+- Normal: a customer waiting on an order or request.
+- Low: general or pre-purchase questions.
+
+Sentiment: Angry only for hostile language or threats; Frustrated for annoyed but polite.
 
 Return ONLY a JSON object:
 {"category": one of %s,
@@ -175,7 +190,7 @@ def ai_triage(cfg, mail, order, templates):
     guess = core.keyword_triage(mail["subject"], mail["body"])["category"]
     examples = core.pick_templates(templates, guess)
     user = {
-        "shop_name": cfg["SHOP_NAME"] or "our shop",
+        "shop_name": cfg["SHOP_NAME"],
         "customer_email": {"from": mail["from_name"] or mail["from_email"], "subject": mail["subject"], "body": mail["body"]},
         "order_facts": order or "No matching order found",
         "reply_templates": examples,
@@ -224,7 +239,8 @@ def process(cfg, imap, uid, raw, dry_run):
     if t is None:
         t = core.keyword_triage(mail["subject"], mail["body"])
         t["reply"] = ("Hi,\n\nThanks for reaching out. We've received your message and a member of our team "
-                      "will get back to you shortly.\n\nBest,\nSupport team")
+                      "will get back to you shortly.\n\nBest,\nThe Support Team")
+    t = core.apply_hard_rules(t, mail["subject"], mail["body"])
     try:
         received = parsedate_to_datetime(mail["date"]).isoformat()
     except Exception:

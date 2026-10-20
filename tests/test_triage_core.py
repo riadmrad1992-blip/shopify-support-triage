@@ -83,6 +83,20 @@ class EscalationTests(unittest.TestCase):
         self.assertIn("angry customer", reasons)
         self.assertTrue(any("high-value" in r for r in reasons))
 
+    def test_high_urgency_alone_does_not_ping_slack(self):
+        t = dict(self.base, category="Order change", urgency="High")
+        self.assertEqual(core.escalation_reasons(t, {"total": 96}), [])
+
+    def test_chargeback_threat_forces_dispute(self):
+        # the model once labelled a chargeback threat as Shipping; the hard rule corrects it
+        t = core.apply_hard_rules(dict(self.base, sentiment="Angry"), "Late order",
+                                  "If I don't hear back today I'm filing a chargeback with my bank.")
+        self.assertEqual((t["category"], t["urgency"]), ("Dispute", "High"))
+
+    def test_bank_transfer_is_not_a_dispute(self):
+        t = core.apply_hard_rules(dict(self.base), "Payment", "Can I pay by bank transfer?")
+        self.assertEqual(t["category"], "Shipping")
+
 
 class OutputTests(unittest.TestCase):
     def test_draft_threads_under_original(self):
