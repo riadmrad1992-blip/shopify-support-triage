@@ -55,7 +55,8 @@ def load_env():
         "GMAIL_ADDRESS", "GMAIL_APP_PASSWORD", "SUPPORT_ADDRESS", "ANTHROPIC_API_KEY",
         "SHOPIFY_STORE", "SHOPIFY_CLIENT_ID", "SHOPIFY_CLIENT_SECRET",
         "NOTION_TOKEN", "NOTION_TICKETS_DB", "NOTION_TEMPLATES_DB", "SLACK_WEBHOOK_URL", "SHOP_NAME"]} | {
-        "ANTHROPIC_MODEL": os.environ.get("ANTHROPIC_MODEL", "claude-haiku-5-5")}
+        # GitHub passes unset repo variables as "", so treat blank as "use the default"
+        "ANTHROPIC_MODEL": os.environ.get("ANTHROPIC_MODEL") or "claude-haiku-5-5"}
 
 
 def http_json(url, payload=None, headers=None, method=None):

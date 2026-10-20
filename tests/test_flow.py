@@ -82,6 +82,17 @@ class FlowTests(unittest.TestCase):
         self.assertTrue(t["summary"].startswith("[keyword fallback]"))
         self.assertEqual(len(imap.drafts), 1)
 
+    def test_blank_model_variable_uses_default(self):
+        # GitHub Actions passes an unset repo variable as an empty string
+        import os
+        from unittest import mock
+        env = {"GMAIL_ADDRESS": "a@gmail.com", "GMAIL_APP_PASSWORD": "x",
+               "SUPPORT_ADDRESS": "a+support@gmail.com", "ANTHROPIC_MODEL": ""}
+        with mock.patch.dict(os.environ, env, clear=True), \
+             mock.patch.object(triage, "ROOT", Path("/nonexistent")):
+            cfg = triage.load_env()
+        self.assertEqual(cfg["ANTHROPIC_MODEL"], "claude-haiku-5-5")
+
 
 if __name__ == "__main__":
     unittest.main()
